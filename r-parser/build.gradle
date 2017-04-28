@@ -1,0 +1,20 @@
+apply plugin: 'java'
+apply plugin: 'com.novoda.bintray-release'
+
+sourceCompatibility = config.javaVersion
+targetCompatibility = config.javaVersion
+
+dependencies {
+    testCompile deps.junit
+    compileOnly files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+    compile deps.javapoet
+}
+
+publish {
+    userOrg = bintray.user
+    groupId = bintray.group
+    artifactId = bintray.artifact
+    publishVersion = bintray.version
+    desc = bintray.desc
+    website = bintray.website
+}

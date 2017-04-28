@@ -1,0 +1,44 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.1'
+        classpath 'com.novoda:bintray-release:0.3.4'
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+ext.config = [
+        javaVersion: JavaVersion.VERSION_1_7
+]
+
+def versionJunit = '4.12'
+def versionJavapoet = '1.8.0'
+
+ext.deps = [
+        // test
+        junit   : "junit:junit:$versionJunit",
+        // square
+        javapoet: "com.squareup:javapoet:$versionJavapoet"
+]
+
+ext.bintray = [
+        user    : 'hendraanggrian',
+        group   : 'com.hendraanggrian',
+        artifact: 'r-parser',
+        version : '0.1.0',
+        desc    : 'Scan and parse Android R classes in annotation processor.',
+        website : 'https://github.com/HendraAnggrian/r-parser'
+]
+
+//$ ./gradlew bintrayUpload -PbintrayUser=hendraanggrian -PbintrayKey= -PdryRun=false

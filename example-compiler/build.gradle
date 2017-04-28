@@ -1,0 +1,16 @@
+apply plugin: 'java'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
+
+dependencies {
+    compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
+    compileOnly files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
+
+    compile project(':example-annotations')
+    compile project(':r-parser')
+}
