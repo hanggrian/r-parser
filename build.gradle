@@ -36,7 +36,7 @@ ext.bintray = [
         user    : 'hendraanggrian',
         group   : 'com.hendraanggrian',
         artifact: 'r-parser',
-        version : '0.1.0',
+        version : '0.1',
         desc    : 'Scan and parse Android R classes in annotation processor.',
         website : 'https://github.com/HendraAnggrian/r-parser'
 ]

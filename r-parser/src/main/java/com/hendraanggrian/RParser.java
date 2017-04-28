@@ -5,11 +5,10 @@ import com.sun.source.util.Trees;
 import com.sun.tools.javac.tree.JCTree;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,25 +25,25 @@ import javax.lang.model.util.Types;
 /**
  * @author Hendra Anggrian (hendraanggrian@gmail.com)
  */
-public class RClassParser {
+public final class RParser {
 
-    private final Collection<Class<? extends Annotation>> supportedAnnotations;
-    private final Collection<String> supportedTypes;
+    private Trees trees;
     private final Types typeUtils;
     private final Elements elementUtils;
-    private Trees trees;
     private final Map<QualifiedId, Id> symbols;
+    private final Collection<Class<? extends Annotation>> supportedAnnotations;
+    private final Collection<String> supportedTypes;
 
-    private RClassParser(ProcessingEnvironment env, Collection<Class<? extends Annotation>> supportedAnnotations, Collection<String> supportedTypes) {
-        this.supportedAnnotations = supportedAnnotations;
-        this.supportedTypes = supportedTypes;
-        this.typeUtils = env.getTypeUtils();
-        this.elementUtils = env.getElementUtils();
+    private RParser(ProcessingEnvironment env, Collection<Class<? extends Annotation>> supportedAnnotations, Collection<String> supportedTypes) {
         try {
             this.trees = Trees.instance(env);
         } catch (IllegalArgumentException ignored) {
         }
-        this.symbols = new HashMap<>();
+        this.typeUtils = env.getTypeUtils();
+        this.elementUtils = env.getElementUtils();
+        this.symbols = new LinkedHashMap<>();
+        this.supportedAnnotations = supportedAnnotations;
+        this.supportedTypes = supportedTypes;
     }
 
     public String parse(String packageName, int id) {
@@ -120,38 +119,42 @@ public class RClassParser {
         return null;
     }
 
+    public static Builder builder(ProcessingEnvironment env) {
+        return new Builder(env);
+    }
+
     public static final class Builder {
         private final ProcessingEnvironment env;
-        private final List<Class<? extends Annotation>> supportedAnnotations;
-        private final List<String> supportedTypes;
+        private Set<Class<? extends Annotation>> supportedAnnotations;
+        private Set<String> supportedTypes;
 
-        public Builder(ProcessingEnvironment env) {
+        private Builder(ProcessingEnvironment env) {
             this.env = env;
-            this.supportedAnnotations = new ArrayList<>();
-            this.supportedTypes = new ArrayList<>();
         }
 
-        public Builder supportedAnnotations(Collection<Class<? extends Annotation>> annotations) {
-            this.supportedAnnotations.addAll(annotations);
+        public Builder setSupportedAnnotations(Collection<Class<? extends Annotation>> annotations) {
+            this.supportedAnnotations = new HashSet<>(annotations);
             return this;
         }
 
         @SafeVarargs
-        public final Builder supportedAnnotations(Class<? extends Annotation>... annotations) {
-            return supportedAnnotations(Arrays.asList(annotations));
+        public final Builder setSupportedAnnotations(Class<? extends Annotation>... annotations) {
+            return setSupportedAnnotations(Arrays.asList(annotations));
         }
 
-        public Builder supportedTypes(Collection<String> supportedTypes) {
-            this.supportedTypes.addAll(supportedTypes);
+        public Builder setSupportedTypes(Collection<String> types) {
+            this.supportedTypes = new HashSet<>(types);
             return this;
         }
 
-        public Builder supportedTypes(String... supportedTypes) {
-            return supportedTypes(Arrays.asList(supportedTypes));
+        public Builder setSupportedTypes(String... types) {
+            return setSupportedTypes(Arrays.asList(types));
         }
 
-        public RClassParser build() {
-            return new RClassParser(env, supportedAnnotations, supportedTypes);
+        public RParser build() {
+            if (supportedAnnotations == null || supportedTypes == null)
+                throw new IllegalStateException("Supported annotations and types must be set.");
+            return new RParser(env, supportedAnnotations, supportedTypes);
         }
     }
 }
