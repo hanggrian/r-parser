@@ -17,16 +17,23 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility = config.javaVersion
+        targetCompatibility = config.javaVersion
+    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    testCompile deps.junit
+    androidTestCompile(deps.testRunner) {
         exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    }
+    androidTestCompile(deps.testEspresso) {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
-    testCompile 'junit:junit:4.12'
 
     compile project(':example-annotations')
     annotationProcessor project(':example-compiler')

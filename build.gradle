@@ -23,20 +23,31 @@ ext.config = [
 ]
 
 def versionJunit = '4.12'
+def versionTestRunner = '0.5'
+def versionTestEspresso = '2.2.2'
+def versionSupport = '25.3.1'
+def versionAutoService = '1.0-rc3'
 def versionJavapoet = '1.8.0'
 
 ext.deps = [
         // test
-        junit   : "junit:junit:$versionJunit",
+        junit             : "junit:junit:$versionJunit",
+        // android test
+        testRunner        : "com.android.support.test:runner:$versionTestRunner",
+        testEspresso      : "com.android.support.test.espresso:espresso-core:$versionTestEspresso",
         // square
-        javapoet: "com.squareup:javapoet:$versionJavapoet"
+        javapoet          : "com.squareup:javapoet:$versionJavapoet",
+        // google
+        autoService       : "com.google.auto.service:auto-service:$versionAutoService",
+        // android
+        supportAnnotations: "com.android.support:support-annotations:$versionSupport"
 ]
 
 ext.bintray = [
         user    : 'hendraanggrian',
         group   : 'com.hendraanggrian',
         artifact: 'r-parser',
-        version : '0.1',
+        version : '0.2',
         desc    : 'Scan and parse Android R classes in annotation processor.',
         website : 'https://github.com/HendraAnggrian/r-parser'
 ]

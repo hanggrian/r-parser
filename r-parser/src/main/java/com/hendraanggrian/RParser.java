@@ -27,23 +27,20 @@ import javax.lang.model.util.Types;
  */
 public final class RParser {
 
-    private Trees trees;
+    private final Trees trees;
     private final Types typeUtils;
     private final Elements elementUtils;
-    private final Map<QualifiedId, Id> symbols;
     private final Collection<Class<? extends Annotation>> supportedAnnotations;
     private final Collection<String> supportedTypes;
+    private final Map<QualifiedId, Id> symbols;
 
-    private RParser(ProcessingEnvironment env, Collection<Class<? extends Annotation>> supportedAnnotations, Collection<String> supportedTypes) {
-        try {
-            this.trees = Trees.instance(env);
-        } catch (IllegalArgumentException ignored) {
-        }
-        this.typeUtils = env.getTypeUtils();
-        this.elementUtils = env.getElementUtils();
-        this.symbols = new LinkedHashMap<>();
+    private RParser(Trees trees, Types typesUtils, Elements elementUtils, Collection<Class<? extends Annotation>> supportedAnnotations, Collection<String> supportedTypes) {
+        this.trees = trees;
+        this.typeUtils = typesUtils;
+        this.elementUtils = elementUtils;
         this.supportedAnnotations = supportedAnnotations;
         this.supportedTypes = supportedTypes;
+        this.symbols = new LinkedHashMap<>();
     }
 
     public String parse(String packageName, int id) {
@@ -120,41 +117,53 @@ public final class RParser {
     }
 
     public static Builder builder(ProcessingEnvironment env) {
-        return new Builder(env);
+        try {
+            return builder(Trees.instance(env), env.getTypeUtils(), env.getElementUtils());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Builder builder(Trees trees, Types typesUtils, Elements elementUtils) {
+        return new Builder(trees, typesUtils, elementUtils);
     }
 
     public static final class Builder {
-        private final ProcessingEnvironment env;
+        private final Trees trees;
+        private final Types typeUtils;
+        private final Elements elementUtils;
         private Set<Class<? extends Annotation>> supportedAnnotations;
         private Set<String> supportedTypes;
 
-        private Builder(ProcessingEnvironment env) {
-            this.env = env;
+        private Builder(Trees trees, Types typesUtils, Elements elementUtils) {
+            this.trees = trees;
+            this.typeUtils = typesUtils;
+            this.elementUtils = elementUtils;
         }
 
-        public Builder setSupportedAnnotations(Collection<Class<? extends Annotation>> annotations) {
-            this.supportedAnnotations = new HashSet<>(annotations);
+        public Builder setSupportedAnnotations(Set<Class<? extends Annotation>> annotations) {
+            this.supportedAnnotations = annotations;
             return this;
         }
 
         @SafeVarargs
         public final Builder setSupportedAnnotations(Class<? extends Annotation>... annotations) {
-            return setSupportedAnnotations(Arrays.asList(annotations));
+            return setSupportedAnnotations(new HashSet<>(Arrays.asList(annotations)));
         }
 
-        public Builder setSupportedTypes(Collection<String> types) {
-            this.supportedTypes = new HashSet<>(types);
+        public Builder setSupportedTypes(Set<String> types) {
+            this.supportedTypes = types;
             return this;
         }
 
         public Builder setSupportedTypes(String... types) {
-            return setSupportedTypes(Arrays.asList(types));
+            return setSupportedTypes(new HashSet<>(Arrays.asList(types)));
         }
 
         public RParser build() {
             if (supportedAnnotations == null || supportedTypes == null)
                 throw new IllegalStateException("Supported annotations and types must be set.");
-            return new RParser(env, supportedAnnotations, supportedTypes);
+            return new RParser(trees, typeUtils, elementUtils, supportedAnnotations, supportedTypes);
         }
     }
 }

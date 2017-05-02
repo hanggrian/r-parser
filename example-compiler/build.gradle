@@ -1,16 +1,20 @@
 apply plugin: 'java'
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+def logger = new com.android.build.gradle.internal.LoggerWrapper(project.logger)
+def sdkHandler = new com.android.build.gradle.internal.SdkHandler(project, logger)
+for (File file : sdkHandler.sdkLoader.repositories) {
+    repositories.maven {
+        url = file.toURI()
+    }
 }
 
-sourceCompatibility = "1.7"
-targetCompatibility = "1.7"
+sourceCompatibility = config.javaVersion
+targetCompatibility = config.javaVersion
 
 dependencies {
-    compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
+    testCompile deps.junit
+    compileOnly deps.autoService
     compileOnly files(org.gradle.internal.jvm.Jvm.current().getToolsJar())
-
     compile project(':example-annotations')
     compile project(':r-parser')
 }
